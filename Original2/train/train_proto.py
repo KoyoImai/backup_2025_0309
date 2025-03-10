@@ -10,6 +10,7 @@ from utils.util_proto import adjust_learning_rate
 from utils.util_proto import AverageMeter
 from utils.util_proto import save_model
 from utils.util_proto import warmup_learning_rate
+from utils.util_proto import write_csv
 
 
 
@@ -138,6 +139,20 @@ def train_epoch(train_loader, model, model2, criterion, base_criterion, optimize
                    epoch, idx + 1, len(train_loader), batch_time=batch_time,
                    data_time=data_time, loss=losses, distill=distill))
             sys.stdout.flush()
+        
+
+        # 学習記録
+        write_csv(value=loss.detach().item(), path=opt.learninglog_folder, file_name="loss")
+        write_csv(value=loss_scl.detach().item(), path=opt.learninglog_folder, file_name="loss_scl")
+        write_csv(value=loss_proto.detach().item(), path=opt.learninglog_folder, file_name="loss_proto")
+
+        write_csv(value=loss_grad_norm, path=opt.learninglog_folder, file_name="loss_grad_norm")
+        write_csv(value=scl_grad_norm, path=opt.learninglog_folder, file_name="scl_grad_norm")
+        write_csv(value=proto_grad_norm, path=opt.learninglog_folder, file_name="proto_grad_norm")
+
+        if opt.target_task > 0:
+            write_csv(value=loss_distill.detach().item(), path=opt.learninglog_folder, file_name="loss_distill")
+            write_csv(value=distill_grad_norm, path=opt.learninglog_folder, file_name="distill_grad_norm")
 
 
 

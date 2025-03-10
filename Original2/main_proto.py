@@ -16,6 +16,7 @@ import random
 import tqdm
 import copy
 import math
+import wandb
 
 import torch
 import torch.nn.functional as F
@@ -121,19 +122,13 @@ def parse_option():
     # modelのパラメータや記録の保存作
     opt.model_path = f'./exp_logs/checkpoints_proto/{opt.original_name}/mpdel_param/'
     opt.log_path   = f'./exp_logs/checkpoints_proto/{opt.original_name}/buffer_log/'
+    opt.learning_path = f'./exp_logs/checkpoints_proto/{opt.original_name}/learning_log/'
 
     # modelの名前
-    opt.model_name = '{}_{}_{}_lr_{}_decay_{}_bsz_{}_temp_{}_trial_{}_{}_{}_{}_{}_{}'.\
-        format(opt.dataset, opt.size, opt.model, opt.learning_rate,
-               opt.weight_decay, opt.batch_size, opt.temp,
-               opt.seed,
-               opt.start_epoch if opt.start_epoch is not None else opt.epochs, opt.epochs,
-               opt.current_temp,
-               opt.past_temp,
-               opt.distill_power
-               )
-    if opt.cosine:
-        opt.model_name = '{}_cosine'.format(opt.model_name)
+    opt.model_name = '{}_{}'.\
+        format(opt.dataset, opt.model)
+    # if opt.cosine:
+    #     opt.model_name = '{}_cosine'.format(opt.model_name)
     
 
     # 大規模バッチの場合のwarm-up
@@ -159,6 +154,11 @@ def parse_option():
     opt.log_folder = os.path.join(opt.log_path, opt.model_name)
     if not os.path.isdir(opt.log_folder):
         os.makedirs(opt.log_folder)
+
+    # 実験記録を保存するディレクトリ
+    opt.learninglog_folder = os.path.join(opt.learning_path, opt.model_name)
+    if not os.path.isdir(opt.learninglog_folder):
+        os.makedirs(opt.learninglog_folder)
 
     return opt
 
@@ -456,6 +456,7 @@ def main():
     opt = parse_option()
 
     # wandbの開始
+    # wandb.init(project=f'{opt.original_name}')
 
     # seed値の固定
     random.seed(opt.seed)
@@ -515,7 +516,9 @@ def main():
           np.array(subset_indices))
         
         # プロトタイプベクトルの割り当てに使用するデータローダ
-        prototype_loader, _ = set_loader_prototype(opt)
+        # prototype_loader, _ = set_loader_prototype(opt)
+        # prototype_loader = None
+
 
         ## 何エポック学習するかの決定
         if target_task == 0 and opt.start_epoch is not None:
@@ -524,7 +527,7 @@ def main():
             opt.epochs = original_epochs
 
         # プロトタイプの割り当て
-        get_assignment(model, train_loader, prototype_loader, optimizer, opt.target_task, opt.n_cls, opt.cls_per_task, opt)
+        # get_assignment(model, train_loader, prototype_loader, optimizer, opt.target_task, opt.n_cls, opt.cls_per_task, opt)
 
         # 1タスク分の学習
         train_task(train_loader, model, model2, criterion, base_criterion, optimizer, opt)

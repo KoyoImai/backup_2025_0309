@@ -1,5 +1,6 @@
 from __future__ import print_function
 
+import os
 import math
 import numpy as np
 import torch
@@ -9,6 +10,7 @@ import torch.optim as optim
 from torch.utils.data import Sampler
 from scipy.stats import multivariate_normal
 # from optimizer.sololearn_lars import LARS
+import csv
 
 
 from sklearn.metrics.pairwise import cosine_similarity
@@ -278,6 +280,27 @@ def save_model(model, optimizer, opt, epoch, save_file):
     }
     torch.save(state, save_file)
     del state
+
+# csvファイルに値を書き込む
+def write_csv(value, path, file_name):
+
+    # パスの存在確認（存在しなければファイルを作成）
+    file_path = f"{path}/{file_name}.csv"
+    if not os.path.isfile(file_path):
+        
+        # ファイルが存在しない場合は新規作成
+        with open(file_path, 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile)
+
+    # ファイルにvalueの値を書き込む
+    with open(file_path, 'a', newline='') as csvfile:
+        writer = csv.writer(csvfile)
+        # value がリストの場合はそのまま書き込む。単一の値の場合はリスト化する
+        if isinstance(value, list):
+            writer.writerow(value)
+        else:
+            writer.writerow([value])
+
 
 
 

@@ -25,13 +25,24 @@ class TinyImagenet(Dataset):
         #                    ('train' if self.train else 'val', num+1)))
 
         self.data = []
+        print("root: ", root)
+        print("1")
         for num in range(20):
+            # self.data.append(np.load(os.path.join(
+            #     root, 'tiny-imagenet/processed/x_%s_%02d.npy' %
+            #           ('train' if self.train else 'val', num+1))))
             self.data.append(np.load(os.path.join(
                 root, 'tiny-imagenet/processed/x_%s_%02d.npy' %
-                      ('train' if self.train else 'val', num+1))))
+                ('train' if self.train else 'val', num+1)), mmap_mode='r'))
         # print("self.data.shape: ", self.data.shape)
-        self.data = np.concatenate(np.array(self.data))
-        # print("self.data.shape: ", self.data.shape)      # self.data.shape:  (100000, 64, 64, 3)
+        
+        print("2")
+
+        # self.data = np.concatenate(np.array(self.data))
+        self.data = np.concatenate(self.data)
+        print("self.data.shape: ", self.data.shape)      # self.data.shape:  (100000, 64, 64, 3)
+
+        print("3")
 
         self.targets = []
         for num in range(20):
@@ -41,6 +52,8 @@ class TinyImagenet(Dataset):
         self.targets = np.concatenate(np.array(self.targets))
         # print("self.targets.shape: ", self.targets.shape)
         # print("self.targets[0:10]: ", self.targets[0:10])
+
+
 
     def __len__(self):
         return len(self.data)
