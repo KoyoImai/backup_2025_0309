@@ -124,6 +124,10 @@ def parse_option():
 
     # リプレイバッファ内のデータまでのパス
     opt.logpt = os.path.join(opt.logpt, 'replay_indices_{target_task}.npy'.format(target_task=opt.target_task))
+
+    # 評価結果を保存するディレクトリ
+    if not os.path.isdir(opt.origin_ckpt):
+        os.makedirs(opt.origin_ckpt)
     
     return opt
 
